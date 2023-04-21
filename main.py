@@ -1,5 +1,6 @@
 import networkx as nx
 from collections import deque
+import heapq
 
 tec = nx.Graph()
 tec.add_nodes_from(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
@@ -64,10 +65,7 @@ def greedy_search(graph, start_node, target_node):
     return visited
 
 
-import heapq
-
-
-def dijkstra(graph, start_node, target_node):
+def dijkstra_search(graph, start_node, target_node):
     # Inicializamos las distancias de cada nodo a un valor "infinito"
     distances = {node: float('inf') for node in graph}
     # La distancia del nodo de inicio a sí mismo es 0
@@ -128,5 +126,5 @@ if __name__ == '__main__':
     camino = greedy_search(tec, 'A', 'Z')
     print(camino)
     print("Dijkstra")
-    camino = dijkstra(tec, 'A', 'Z')
+    camino = dijkstra_search(tec, 'A', 'Z')
     print(camino)
