@@ -1,9 +1,6 @@
 import networkx as nx
 from collections import deque
 
-# import matplotlib.pyplot as plt
-# from matplotlib.pyplot import figure
-
 tec = nx.Graph()
 tec.add_nodes_from(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
                     'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
@@ -55,25 +52,69 @@ def dfs_search(graph, start_node, target_node):
     return []
 
 
-def greedy_search(G, start, goal):
-    visited = [start]
-    while visited[-1] != goal:
-        neighbors = list(G.neighbors(visited[-1]))
-        h = {n: G[visited[-1]][n]['weight'] for n in neighbors if n not in visited}
+def greedy_search(graph, start_node, target_node):
+    visited = [start_node]
+    while visited[-1] != target_node:
+        neighbors = list(graph.neighbors(visited[-1]))
+        h = {n: graph[visited[-1]][n]['weight'] for n in neighbors if n not in visited}
         if not h:
             break
         next_node = min(h, key=h.get)
         visited.append(next_node)
     return visited
 
-# Impresiones
 
-# figure(figsize=(20,10), dpi=500)
-# labels = nx.get_edge_attributes(tec,'weight')
-# layout = nx.spring_layout(tec)
-# nx.draw(tec, layout, with_labels=True,node_size=200)
-# nx.draw_networkx_edge_labels(tec,layout,edge_labels=labels)
-# plt.savefig("tec_networkx.png")
+import heapq
+
+
+def dijkstra(graph, start_node, target_node):
+    # Inicializamos las distancias de cada nodo a un valor "infinito"
+    distances = {node: float('inf') for node in graph}
+    # La distancia del nodo de inicio a sí mismo es 0
+    distances[start_node] = 0
+
+    # Usamos una cola de prioridad (heap) para seleccionar el nodo con la distancia mínima en cada iteración
+    priority_queue = [(0, start_node)]
+
+    # Creamos un diccionario para mantener el registro de los nodos visitados
+    visited = {}
+    # Para mantener el registro del camino más corto desde el nodo de inicio al nodo actual,
+    # guardamos cada nodo visitado en un diccionario, donde la clave es el nodo actual y el valor es el nodo previo
+    # en el camino más corto
+    shortest_path = {start_node: None}
+
+    while len(priority_queue) > 0:
+        # Sacamos el nodo con la distancia mínima de la cola de prioridad
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        # Si el nodo actual ya ha sido visitado, lo saltamos
+        if current_node in visited:
+            continue
+
+        # Marcamos el nodo actual como visitado
+        visited[current_node] = True
+
+        # Si llegamos al nodo objetivo, regresamos el camino más corto
+        if current_node == target_node:
+            path = []
+            while current_node is not None:
+                path.append(current_node)
+                current_node = shortest_path[current_node]
+            path.reverse()
+            # return path, distances[target_node]
+            return path
+
+        # Para cada vecino del nodo actual, actualizamos las distancias si es necesario
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight['weight']
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                shortest_path[neighbor] = current_node
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+    # Si no encontramos un camino al nodo objetivo, regresamos None
+    return None, None
+
 
 if __name__ == '__main__':
     print("Arruina tu vida por Hitler")
@@ -85,4 +126,7 @@ if __name__ == '__main__':
     print(camino)
     print("Greedy")
     camino = greedy_search(tec, 'A', 'Z')
+    print(camino)
+    print("Dijkstra")
+    camino = dijkstra(tec, 'A', 'Z')
     print(camino)
